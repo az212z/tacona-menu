@@ -28,7 +28,6 @@
   "image": "https://az212z.github.io/tacona-menu/assets/img/hero.jpg",
   "address": { "@type": "PostalAddress", "addressLocality": "الرياض", "addressRegion": "حي لبن", "addressCountry": "SA" },
   "geo": { "@type": "GeoCoordinates", "latitude": 24.6451742, "longitude": 46.5499295 },
-  "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "90", "bestRating": "5" },
   "hasMenu": {
     "@type": "Menu",
     "name": "منيو تاكونا",
@@ -123,8 +122,6 @@ button{font-family:var(--ar);letter-spacing:0}
   font-size:clamp(2.1rem,6.4vw,3.6rem);text-wrap:balance;
 }
 .hero p{margin:0 auto;max-width:36ch;color:rgba(255,255,255,.87);font-size:clamp(.95rem,1.4vw,1.05rem)}
-.hero-rate{display:inline-flex;align-items:center;gap:.5em;margin-block-start:14px;font-weight:600;font-size:.92rem}
-.hero-rate svg{color:#F4B23E}
 .rise{display:block;overflow:hidden}
 .rise>span{display:block;transform:translateY(112%)}
 .loaded .rise>span{animation:rise .9s var(--ease) forwards}
@@ -184,7 +181,9 @@ button{font-family:var(--ar);letter-spacing:0}
 @media(hover:hover){
   .card:hover{transform:translateY(-5px);box-shadow:var(--sh-m)}
   .card:hover::after{transform:scaleX(1)}
-  .card:hover .card-img img{transform:scale(1.045)}
+  @supports not (animation-timeline: view()){
+    .card:hover .card-img img{transform:scale(1.045)}
+  }
 }
 .card-img{aspect-ratio:4/3;overflow:hidden;background:var(--sand)}
 .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
@@ -379,6 +378,33 @@ body.cartOpen .drawer{transform:none}
   .hero-glow{animation:drift 18s ease-in-out infinite alternate}
   @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(18%,10%) scale(1.15)}}
 }
+
+/* ---------- Cinematic scroll choreography (compositor-only) ---------- */
+@supports (animation-timeline: scroll()){
+  @media (prefers-reduced-motion: no-preference){
+    /* hero media lags behind the scroll (parallax) */
+    .hero-media{animation:hero-par linear both;animation-timeline:scroll(root);animation-range:0 90svh}
+    @keyframes hero-par{from{transform:translateY(0)}to{transform:translateY(14%)}}
+    /* hero text exits upward and fades as you scroll away */
+    .hero-in{animation:hero-exit linear both;animation-timeline:scroll(root);animation-range:0 55svh}
+    @keyframes hero-exit{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-46px)}}
+    /* gold underline draws itself in as each section arrives */
+    .msec-head h2::after{transform-origin:100% 50%;animation:draw both;animation-timeline:view();animation-range:entry 10% entry 80%}
+    @keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+    /* dish photos settle from a gentle zoom on entry (transform-only) */
+    .card-img img{animation:settle both;animation-timeline:view();animation-range:entry 0% cover 30%}
+    @keyframes settle{from{transform:scale(1.07)}to{transform:scale(1)}}
+  }
+}
+/* ---------- Cart feedback pulse ---------- */
+.cartbtn.pulse{animation:pulse .45s var(--ease)}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+.cartbtn .cnt.bump{animation:bump .4s var(--ease)}
+@keyframes bump{0%{transform:scale(1)}45%{transform:scale(1.35)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){
+  .hero-media,.hero-in{animation:none !important}
+  .cartbtn.pulse,.cartbtn .cnt.bump{animation:none !important}
+}
 @media (prefers-reduced-motion: reduce){
   .rv,.rv.in{opacity:1 !important;transform:none !important;transition:none !important;animation:none !important}
   .rise>span{transform:none !important;animation:none !important}
@@ -401,10 +427,6 @@ body.cartOpen .drawer{transform:none}
       <span class="rise"><span class="en" style="font-size:.5em;letter-spacing:.3em;color:#F4CDA5">TACONA</span></span>
     </h1>
     <p>مطبخ مكسيكي أصيل. بيريا، تاكو، بوريتو، وبوكسات الجمعات.</p>
-    <span class="hero-rate num" dir="ltr">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.2 5.8 20.9l1.6-7L2 9.2l7.1-.6z"/></svg>
-      4.9 <span style="opacity:.75">(90+)</span>
-    </span>
   </div>
 </header>
 
@@ -615,6 +637,12 @@ function change(k, delta){
   cart[k] = (cart[k] || 0) + delta;
   if (cart[k] <= 0) delete cart[k];
   sync();
+  if (delta > 0){
+    // feedback pulse on the cart button + counter bump
+    cartbtn.classList.remove('pulse'); cartCount.classList.remove('bump');
+    void cartbtn.offsetWidth;                       // restart animations
+    cartbtn.classList.add('pulse'); cartCount.classList.add('bump');
+  }
 }
 
 document.addEventListener('click', e => {
