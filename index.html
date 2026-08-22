@@ -93,7 +93,7 @@ button{font-family:var(--ar);letter-spacing:0}
 
 /* ---------- Hero ---------- */
 .hero{
-  position:relative;min-height:min(62svh,560px);display:grid;place-items:end center;
+  position:relative;min-height:min(90svh,780px);display:grid;place-items:center;
   color:#fff;isolation:isolate;overflow:hidden;background:var(--ink);
 }
 .hero-media{position:absolute;inset:0;z-index:-3}
@@ -109,7 +109,9 @@ button{font-family:var(--ar);letter-spacing:0}
 }
 .hero::after{
   content:"";position:absolute;inset:0;z-index:-1;
-  background:linear-gradient(to top,rgba(12,10,9,.9) 0%,rgba(12,10,9,.38) 46%,rgba(12,10,9,.28) 100%);
+  background:
+    radial-gradient(118% 80% at 50% 42%, transparent 40%, rgba(10,8,7,.5) 100%),
+    linear-gradient(to top, rgba(10,8,7,.94) 0%, rgba(10,8,7,.32) 44%, rgba(10,8,7,.52) 100%);
 }
 .grain{
   position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
@@ -126,10 +128,19 @@ button{font-family:var(--ar);letter-spacing:0}
 }
 .hero p{margin:0 auto;max-width:36ch;color:rgba(255,255,255,.87);font-size:clamp(.95rem,1.4vw,1.05rem)}
 /* fixed brand logo over the slideshow */
-.hero-logo{margin:0 auto .35em;line-height:0}
-.hero-logo img{width:clamp(250px,60vw,460px);height:auto;display:block;margin-inline:auto;
-  filter:drop-shadow(0 10px 30px rgba(0,0,0,.55));opacity:0;transform:translateY(12px) scale(.97)}
-.loaded .hero-logo img{opacity:1;transform:none;transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.hero-logo{margin:0 auto .55em;line-height:0;position:relative;display:block}
+.hero-logo::before{content:"";position:absolute;inset:-26% -14%;z-index:-1;
+  background:radial-gradient(ellipse at center,rgba(10,8,7,.62),transparent 68%);filter:blur(12px)}
+.hero-logo img{width:clamp(265px,65vw,490px);height:auto;display:block;margin-inline:auto;
+  filter:drop-shadow(0 14px 38px rgba(0,0,0,.62));opacity:0;transform:translateY(14px) scale(.96)}
+.loaded .hero-logo img{opacity:1;transform:none;transition:opacity 1s var(--ease),transform 1s var(--ease)}
+/* scroll cue */
+.hero-cue{position:absolute;inset-block-end:20px;inset-inline:0;z-index:2;text-align:center;pointer-events:none;
+  color:rgba(255,255,255,.82);font-size:.78rem;font-weight:600;letter-spacing:.03em}
+.hero-cue span{display:inline-flex;flex-direction:column;align-items:center;gap:2px}
+.hero-cue span::after{content:"⌄";font-size:1.35em;line-height:.6}
+@media(prefers-reduced-motion:no-preference){.hero-cue{animation:cuebob 1.9s ease-in-out infinite}
+  @keyframes cuebob{0%,100%{transform:translateY(0);opacity:.66}50%{transform:translateY(6px);opacity:1}}}
 @media (prefers-reduced-motion:reduce){.hero-logo img{opacity:1 !important;transform:none !important;transition:none !important}}
 .rise{display:block;overflow:hidden}
 .rise>span{display:block;transform:translateY(112%)}
@@ -513,6 +524,7 @@ body.cartOpen .drawer{transform:none}
     <h1 class="hero-logo"><img src="assets/img/logo.png" alt="تاكونا TACONA · منيو مطبخ مكسيكي في الرياض" width="1031" height="401" fetchpriority="high" /></h1>
     <p>مطبخ مكسيكي أصيل · بيريا، تاكو، بوريتو وبوكسات الجمعات · الرياض</p>
   </div>
+  <div class="hero-cue" aria-hidden="true"><span>القائمة بالأسفل</span></div>
 </header>
 
 <!-- ======== CATEGORY NAV ======== -->
@@ -899,13 +911,9 @@ if (!CSS.supports('animation-timeline: scroll()')) {
     function nameFrom(t){var c=t.closest('.card');if(c){var h=c.querySelector('h3');if(h)return h.textContent.trim();}var d=t.closest('.d-item');if(d){var b=d.querySelector('.d-info b');if(b)return b.textContent.trim();}var u=t.closest('.up-chip');if(u)return u.getAttribute('data-add')||'';return '';}
     document.addEventListener('click',function(ev){
       var t=ev.target.closest('[data-add],[data-plus]');if(!t)return;
-      var nm=nameFrom(t), drinks=drinkKeys();
-      var isDrink=nm && drinks[nm];
-      var hasDrink=!!document.querySelector('#drinks .card.inCart');
-      var msg=nm?('أُضيف «'+nm+'» ✓'):'أُضيف للسلة ✓';
-      if(!isDrink && !hasDrink) msg+=' · لا تنسَ مشروبك 🥤';
-      toast(msg);
-      if(navigator.vibrate){try{navigator.vibrate(14);}catch(e){}}
+      var nm=nameFrom(t);
+      toast(nm?('أُضيف «'+nm+'» ✓'):'أُضيف للسلة ✓');
+      if(navigator.vibrate){try{navigator.vibrate(18);}catch(e){}}
     });
 
     /* ---- upsell «أكمِل وجبتك» in the cart drawer ---- */
