@@ -409,6 +409,40 @@ body.cartOpen .drawer{transform:none}
   .rise>span{transform:none !important;animation:none !important}
   .badge.sig::before{animation:none !important}
 }
+
+/* ============================================================
+   ADDED MOTION LAYER — fly-to-cart, fiesta burst, hero embers,
+   drawer stagger. Purely additive (transform/opacity only).
+   ============================================================ */
+.fly{position:fixed;inset-block-start:0;inset-inline-start:0;z-index:120;pointer-events:none;
+  display:grid;place-items:center;font-size:22px;line-height:1;filter:drop-shadow(0 4px 8px rgba(20,18,16,.3));will-change:transform,opacity}
+.spark{position:fixed;inset-block-start:0;inset-inline-start:0;z-index:119;pointer-events:none;
+  inline-size:8px;block-size:8px;border-radius:50%;will-change:transform,opacity}
+/* hero ambient embers (warm spice dust rising) */
+.embers{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.ember{position:absolute;inset-block-end:-14px;border-radius:50%;opacity:0;
+  background:radial-gradient(circle,rgba(244,205,165,.95),rgba(200,154,91,.25) 65%,transparent 72%);will-change:transform,opacity}
+@media (prefers-reduced-motion: no-preference){
+  .ember{animation:emberRise linear infinite}
+  @keyframes emberRise{
+    0%{opacity:0;transform:translate3d(0,0,0) scale(.6)}
+    14%{opacity:.9}
+    85%{opacity:.5}
+    100%{opacity:0;transform:translate3d(var(--dx,10px),-58vh,0) scale(1.15)}
+  }
+  /* drawer items settle in only while opening (not on every qty change) */
+  .drawer.opening .d-item{animation:dItem .5s var(--ease) both}
+  .drawer.opening .d-item:nth-child(1){animation-delay:.03s}
+  .drawer.opening .d-item:nth-child(2){animation-delay:.08s}
+  .drawer.opening .d-item:nth-child(3){animation-delay:.13s}
+  .drawer.opening .d-item:nth-child(4){animation-delay:.18s}
+  .drawer.opening .d-item:nth-child(n+5){animation-delay:.23s}
+  @keyframes dItem{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+}
+@media (prefers-reduced-motion: reduce){
+  .embers{display:none}
+  .fly,.spark{display:none !important}
+}
 </style>
 </head>
 <body>
@@ -715,6 +749,90 @@ if (!CSS.supports('animation-timeline: scroll()')) {
   console.error(e);
   document.querySelectorAll('.rv').forEach(el => el.classList.add('in'));
 }
+</script>
+
+<!-- ======== ADDED MOTION LAYER (isolated; cannot affect the menu/cart) ======== -->
+<script>
+(function(){
+  try{
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    var canAnim = typeof Element !== 'undefined' && 'animate' in Element.prototype;
+
+    /* ---- hero ambient embers (warm spice dust) ---- */
+    var hero = document.querySelector('.hero'), heroIn = hero && hero.querySelector('.hero-in');
+    if (hero && heroIn){
+      var wrap = document.createElement('div');
+      wrap.className = 'embers'; wrap.setAttribute('aria-hidden','true');
+      for (var i=0;i<12;i++){
+        var e = document.createElement('span'); e.className = 'ember';
+        var sc = 0.6 + Math.random()*1.2, s = (4*sc).toFixed(1)+'px';
+        e.style.inlineSize = s; e.style.blockSize = s;
+        e.style.insetInlineStart = (Math.random()*100).toFixed(2)+'%';
+        e.style.setProperty('--dx', (Math.random()*44-22).toFixed(0)+'px');
+        e.style.animationDuration = (9 + Math.random()*8).toFixed(1)+'s';
+        e.style.animationDelay = (-Math.random()*13).toFixed(1)+'s';
+        wrap.appendChild(e);
+      }
+      hero.insertBefore(wrap, heroIn);
+    }
+
+    /* ---- fiesta spark burst at a viewport point ---- */
+    var COLORS = ['#B93227','#C89A5B','#2E6B4E','#E0703F','#F4CDA5'];
+    function burst(cx, cy){
+      if (!canAnim) return;
+      for (var i=0;i<11;i++){
+        var p = document.createElement('span'); p.className = 'spark';
+        p.style.background = COLORS[i % COLORS.length];
+        document.body.appendChild(p);
+        var ang = Math.random()*Math.PI*2, dist = 22 + Math.random()*28;
+        var a = p.animate([
+          { transform:'translate('+cx+'px,'+cy+'px) scale(1)', opacity:1 },
+          { transform:'translate('+(cx+Math.cos(ang)*dist)+'px,'+(cy+Math.sin(ang)*dist)+'px) scale(0)', opacity:0 }
+        ], { duration: 480 + Math.random()*260, easing:'cubic-bezier(.2,.7,.3,1)' });
+        a.onfinish = (function(n){ return function(){ n.remove(); }; })(p);
+      }
+    }
+
+    /* ---- fly a taco from the tapped dish to the cart button ---- */
+    var cartBtn = document.getElementById('cartbtn');
+    function flyToCart(srcBtn){
+      if (!canAnim || !cartBtn) return;
+      var card = srcBtn.closest('.card'); if (!card) return;      // cards only (not drawer)
+      // anchor from the action row (always visible) — the .add button is display:none once inCart
+      var anchor = card.querySelector('.addrow') || srcBtn;
+      var s = anchor.getBoundingClientRect(), d = cartBtn.getBoundingClientRect();
+      if (!s.width || !d.width) return;
+      var x0 = s.left + s.width/2 - 13,  y0 = s.top + s.height/2 - 13;
+      var x1 = d.left + d.width/2 - 13,  y1 = d.top + d.height/2 - 13;
+      var fly = document.createElement('div'); fly.className = 'fly'; fly.textContent = '🌮';
+      fly.setAttribute('aria-hidden','true'); document.body.appendChild(fly);
+      var a = fly.animate([
+        { transform:'translate('+x0+'px,'+y0+'px) rotate(0deg) scale(1)',   opacity:1, offset:0 },
+        { transform:'translate('+((x0+x1)/2)+'px,'+(Math.min(y0,y1)-72)+'px) rotate(-18deg) scale(1.18)', opacity:1, offset:.55 },
+        { transform:'translate('+x1+'px,'+y1+'px) rotate(-8deg) scale(.34)', opacity:.25, offset:1 }
+      ], { duration: 660, easing:'cubic-bezier(.5,0,.35,1)' });
+      a.onfinish = function(){ fly.remove(); burst(x1+13, y1+13); };
+      a.oncancel = function(){ fly.remove(); };
+    }
+    // independent listener — never touches the cart logic above
+    document.addEventListener('click', function(ev){
+      var t = ev.target.closest('.card [data-add], .card [data-plus]');
+      if (t) flyToCart(t);
+    });
+
+    /* ---- drawer opening stagger ---- */
+    if (cartBtn){
+      var drawerEl = document.getElementById('drawer');
+      cartBtn.addEventListener('click', function(){
+        if (!drawerEl) return;
+        drawerEl.classList.remove('opening'); void drawerEl.offsetWidth;
+        drawerEl.classList.add('opening');
+        setTimeout(function(){ drawerEl.classList.remove('opening'); }, 800);
+      });
+    }
+  } catch(err){ /* additive layer only — swallow so the menu is never affected */ }
+})();
 </script>
 </body>
 </html>
