@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="preload" as="image" href="assets/img/hero.jpg" fetchpriority="high" />
+<link rel="preload" as="image" href="assets/img/logo.png" fetchpriority="high" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23141210'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-weight='700' font-size='36' fill='%23B93227'%3ET%3C/text%3E%3C/svg%3E" />
 <script type="application/ld+json">
 {
@@ -124,6 +125,12 @@ button{font-family:var(--ar);letter-spacing:0}
   font-size:clamp(2.1rem,6.4vw,3.6rem);text-wrap:balance;
 }
 .hero p{margin:0 auto;max-width:36ch;color:rgba(255,255,255,.87);font-size:clamp(.95rem,1.4vw,1.05rem)}
+/* fixed brand logo over the slideshow */
+.hero-logo{margin:0 auto .35em;line-height:0}
+.hero-logo img{width:clamp(250px,60vw,460px);height:auto;display:block;margin-inline:auto;
+  filter:drop-shadow(0 10px 30px rgba(0,0,0,.55));opacity:0;transform:translateY(12px) scale(.97)}
+.loaded .hero-logo img{opacity:1;transform:none;transition:opacity .9s var(--ease),transform .9s var(--ease)}
+@media (prefers-reduced-motion:reduce){.hero-logo img{opacity:1 !important;transform:none !important;transition:none !important}}
 .rise{display:block;overflow:hidden}
 .rise>span{display:block;transform:translateY(112%)}
 .loaded .rise>span{animation:rise .9s var(--ease) forwards}
@@ -503,12 +510,8 @@ body.cartOpen .drawer{transform:none}
   <div class="hero-glow" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div class="hero-in">
-    <span class="hero-eyebrow"><span class="en">Mexican Kitchen</span> · الرياض، حي لبن</span>
-    <h1>
-      <span class="rise"><span>منيو تاكونا</span></span>
-      <span class="rise"><span class="en" style="font-size:.5em;letter-spacing:.3em;color:#F4CDA5">TACONA</span></span>
-    </h1>
-    <p>مطبخ مكسيكي أصيل. بيريا، تاكو، بوريتو، وبوكسات الجمعات.</p>
+    <h1 class="hero-logo"><img src="assets/img/logo.png" alt="تاكونا TACONA · منيو مطبخ مكسيكي في الرياض" width="1031" height="401" fetchpriority="high" /></h1>
+    <p>مطبخ مكسيكي أصيل · بيريا، تاكو، بوريتو وبوكسات الجمعات · الرياض</p>
   </div>
 </header>
 
