@@ -128,11 +128,12 @@ button{font-family:var(--ar);letter-spacing:0}
 }
 .hero p{margin:0 auto;max-width:36ch;color:rgba(255,255,255,.87);font-size:clamp(.95rem,1.4vw,1.05rem)}
 /* two branches, professional glassy chips */
-.hero-branches{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 10px;margin-top:1.15em}
+.hero-branches{display:flex;flex-direction:column;align-items:center;gap:9px;margin-top:1.15em}
 .hero-branches .hb-label{display:inline-flex;align-items:center;gap:6px;color:#F4CDA5;font-weight:700;font-size:.82rem;letter-spacing:.01em}
 .hero-branches .hb-label svg{width:15px;height:15px;fill:currentColor;flex:none}
-.hero-branches .hb-chip{display:inline-flex;align-items:center;font-size:.85rem;font-weight:600;color:#fff;
-  border:1px solid rgba(255,255,255,.30);border-radius:999px;padding:.44em 1.1em;
+.hero-branches .hb-chip{display:inline-flex;align-items:center;justify-content:center;min-width:170px;
+  font-size:.85rem;font-weight:600;color:#fff;
+  border:1px solid rgba(255,255,255,.30);border-radius:999px;padding:.5em 1.3em;
   background:rgba(20,18,16,.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
   box-shadow:0 4px 14px rgba(0,0,0,.28)}
 /* fixed brand logo over the slideshow */
@@ -533,8 +534,8 @@ body.cartOpen .drawer{transform:none}
     <p>مطبخ مكسيكي أصيل · بيريا، تاكو، بوريتو وبوكسات الجمعات</p>
     <div class="hero-branches" aria-label="فروعنا في الرياض">
       <span class="hb-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>الرياض</span>
-      <span class="hb-chip">حي السويدي</span>
-      <span class="hb-chip">حي ظهرة لبن</span>
+      <span class="hb-chip">فرع - ظهرة لبن</span>
+      <span class="hb-chip">فرع - السويدي</span>
     </div>
   </div>
   <div class="hero-cue" aria-hidden="true"><span>القائمة بالأسفل</span></div>
