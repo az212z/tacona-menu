@@ -439,6 +439,16 @@ body.cartOpen .drawer{transform:none}
   .drawer.opening .d-item:nth-child(n+5){animation-delay:.23s}
   @keyframes dItem{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 }
+/* spinning taco watermark drifting in the background */
+.taco-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.taco-bg span{position:absolute;line-height:1;opacity:.1;filter:saturate(.92);will-change:transform}
+.taco-bg .t1{inset-block-start:-7%;inset-inline-start:-5%;font-size:clamp(190px,30vw,380px)}
+.taco-bg .t2{inset-block-end:-9%;inset-inline-end:-6%;font-size:clamp(150px,22vw,300px)}
+@media (prefers-reduced-motion: no-preference){
+  .taco-bg .t1{animation:tacoSpin 46s linear infinite}
+  .taco-bg .t2{animation:tacoSpin 34s linear infinite reverse}
+  @keyframes tacoSpin{to{transform:rotate(360deg)}}
+}
 @media (prefers-reduced-motion: reduce){
   .embers{display:none}
   .fly,.spark{display:none !important}
@@ -446,6 +456,7 @@ body.cartOpen .drawer{transform:none}
 </style>
 </head>
 <body>
+<div class="taco-bg" aria-hidden="true"><span class="t1">🌮</span><span class="t2">🌮</span></div>
 <div id="prog" aria-hidden="true"></div>
 
 <!-- ======== HERO ======== -->
