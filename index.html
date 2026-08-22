@@ -27,7 +27,7 @@
   "telephone": "+966532555012",
   "url": "https://taconasa.com/",
   "image": "https://taconasa.com/assets/img/hero.jpg",
-  "address": { "@type": "PostalAddress", "addressLocality": "الرياض", "addressRegion": "حي لبن", "addressCountry": "SA" },
+  "address": { "@type": "PostalAddress", "addressLocality": "الرياض", "addressRegion": "حي السويدي · حي ظهرة لبن", "addressCountry": "SA" },
   "geo": { "@type": "GeoCoordinates", "latitude": 24.6451742, "longitude": 46.5499295 },
   "hasMenu": {
     "@type": "Menu",
@@ -127,6 +127,14 @@ button{font-family:var(--ar);letter-spacing:0}
   font-size:clamp(2.1rem,6.4vw,3.6rem);text-wrap:balance;
 }
 .hero p{margin:0 auto;max-width:36ch;color:rgba(255,255,255,.87);font-size:clamp(.95rem,1.4vw,1.05rem)}
+/* two branches, professional glassy chips */
+.hero-branches{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 10px;margin-top:1.15em}
+.hero-branches .hb-label{display:inline-flex;align-items:center;gap:6px;color:#F4CDA5;font-weight:700;font-size:.82rem;letter-spacing:.01em}
+.hero-branches .hb-label svg{width:15px;height:15px;fill:currentColor;flex:none}
+.hero-branches .hb-chip{display:inline-flex;align-items:center;font-size:.85rem;font-weight:600;color:#fff;
+  border:1px solid rgba(255,255,255,.30);border-radius:999px;padding:.44em 1.1em;
+  background:rgba(20,18,16,.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 4px 14px rgba(0,0,0,.28)}
 /* fixed brand logo over the slideshow */
 .hero-logo{margin:0 auto .55em;line-height:0;position:relative;display:block}
 .hero-logo::before{content:"";position:absolute;inset:-26% -14%;z-index:-1;
@@ -522,7 +530,12 @@ body.cartOpen .drawer{transform:none}
   <div class="grain" aria-hidden="true"></div>
   <div class="hero-in">
     <h1 class="hero-logo"><img src="assets/img/logo.png" alt="تاكونا TACONA · منيو مطبخ مكسيكي في الرياض" width="1031" height="401" fetchpriority="high" /></h1>
-    <p>مطبخ مكسيكي أصيل · بيريا، تاكو، بوريتو وبوكسات الجمعات · الرياض</p>
+    <p>مطبخ مكسيكي أصيل · بيريا، تاكو، بوريتو وبوكسات الجمعات</p>
+    <div class="hero-branches" aria-label="فروعنا في الرياض">
+      <span class="hb-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>فرعان في الرياض</span>
+      <span class="hb-chip">حي السويدي</span>
+      <span class="hb-chip">حي ظهرة لبن</span>
+    </div>
   </div>
   <div class="hero-cue" aria-hidden="true"><span>القائمة بالأسفل</span></div>
 </header>
@@ -536,7 +549,7 @@ body.cartOpen .drawer{transform:none}
 <main id="menu" class="shell"></main>
 
 <footer class="foot">
-  <p>تاكونا TACONA · الرياض، حي لبن · <a dir="ltr" href="tel:+966532555012">053 255 5012</a></p>
+  <p>تاكونا TACONA · الرياض · فرعا حي السويدي وحي ظهرة لبن · <a dir="ltr" href="tel:+966532555012">053 255 5012</a></p>
   <p>صُمّم بواسطة <a href="https://wa.me/966505989304">Ali</a></p>
 </footer>
 
