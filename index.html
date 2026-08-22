@@ -97,6 +97,9 @@ button{font-family:var(--ar);letter-spacing:0}
 }
 .hero-media{position:absolute;inset:0;z-index:-3}
 .hero-media img{width:100%;height:100%;object-fit:cover;transform-origin:center}
+/* crossfade slideshow layers */
+.hero-media .hslide{position:absolute;inset:0;opacity:0;transition:opacity .7s ease-in-out;will-change:opacity}
+.hero-media .hslide.on{opacity:1}
 .hero-glow{
   position:absolute;z-index:-2;inset-block-start:-20%;inset-inline-start:-10%;
   width:65%;aspect-ratio:1;border-radius:50%;pointer-events:none;
@@ -464,7 +467,10 @@ body.cartOpen .drawer{transform:none}
 
 <!-- ======== HERO ======== -->
 <header class="hero" id="top">
-  <div class="hero-media"><img src="assets/img/hero.jpg" alt="أطباق تاكونا المكسيكية" fetchpriority="high" /></div>
+  <div class="hero-media">
+    <img class="hslide on" src="assets/img/hero.jpg" alt="أطباق تاكونا المكسيكية" fetchpriority="high" />
+    <img class="hslide" alt="" aria-hidden="true" />
+  </div>
   <div class="hero-glow" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div class="hero-in">
@@ -846,6 +852,40 @@ if (!CSS.supports('animation-timeline: scroll()')) {
       });
     }
   } catch(err){ /* additive layer only · swallow so the menu is never affected */ }
+})();
+</script>
+<!-- ======== HERO SLIDESHOW · crossfade through every dish (isolated) ======== -->
+<script>
+(function(){
+  try{
+    var media = document.querySelector('.hero-media');
+    if(!media) return;
+    var slides = media.querySelectorAll('.hslide');
+    if(slides.length < 2) return;
+    // collect dish photos from the rendered menu (exclude the drinks section)
+    var photos = ['assets/img/hero.jpg'];
+    document.querySelectorAll('.msec:not(#drinks) .card-img img').forEach(function(im){
+      var s = im.getAttribute('src'); if(s) photos.push(s);
+    });
+    photos = photos.filter(function(v,i){ return photos.indexOf(v) === i; });   // dedupe
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce || photos.length < 2) return;    // keep a single static hero
+
+    photos.forEach(function(s){ var im = new Image(); im.src = s; });           // preload all
+    var imgs = [slides[0], slides[1]];
+    if(!imgs[0].getAttribute('src')) imgs[0].src = photos[0];
+    imgs[0].classList.add('on');
+    var cur = 0, p = 1 % photos.length;
+    setInterval(function(){
+      if(document.hidden) return;               // pause when tab is not visible
+      var back = imgs[1 - cur];
+      back.src = photos[p];
+      back.classList.add('on');
+      imgs[cur].classList.remove('on');
+      cur = 1 - cur;
+      p = (p + 1) % photos.length;
+    }, 1500);
+  }catch(e){}
 })();
 </script>
 </body>
