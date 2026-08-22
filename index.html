@@ -456,6 +456,35 @@ body.cartOpen .drawer{transform:none}
 @media (prefers-reduced-motion: reduce){
   .embers{display:none}
 }
+/* ---------- Toast «أُضيف للسلة» ---------- */
+.toast{
+  position:fixed;inset-block-end:calc(82px + env(safe-area-inset-bottom));inset-inline:0;margin-inline:auto;
+  width:max-content;max-width:88vw;display:flex;align-items:center;gap:9px;
+  background:var(--ink);color:var(--bone);padding:.72em 1.25em;border-radius:999px;
+  font-size:.9rem;font-weight:600;box-shadow:var(--sh-m);z-index:100;
+  opacity:0;transform:translateY(14px) scale(.96);pointer-events:none;
+  transition:opacity .3s var(--ease),transform .3s var(--ease);
+}
+.toast.show{opacity:1;transform:none}
+.toast svg{inline-size:19px;block-size:19px;fill:none;stroke:#7BE0A3;stroke-width:2.5;flex:0 0 auto}
+@media(min-width:820px){.toast{inset-inline-end:24px;inset-inline-start:auto;margin-inline:0}}
+/* ---------- Upsell «أكمِل وجبتك» ---------- */
+.upsell{padding:2px 22px 4px}
+.upsell:empty{display:none}
+.up-title{font-weight:700;font-size:.9rem;margin-block:8px 9px;color:var(--ink-2);display:flex;align-items:center;gap:.4em}
+.up-row{display:flex;gap:8px;overflow-x:auto;padding-block-end:6px;scrollbar-width:none}
+.up-row::-webkit-scrollbar{display:none}
+.up-chip{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:.5em;background:var(--paper);
+  border:1px solid var(--line);border-radius:999px;padding:.5em 1em;cursor:pointer;
+  font-family:var(--ar);font-weight:600;font-size:.85rem;color:var(--ink);white-space:nowrap;
+  transition:transform .2s var(--ease),border-color .2s,background .2s;
+}
+.up-chip b{font-family:var(--dp);color:var(--chili);font-weight:800;direction:ltr}
+.up-chip::after{content:"+";font-family:var(--dp);font-weight:800;color:var(--muted)}
+.up-chip:hover{border-color:var(--chili)}
+.up-chip:active{transform:scale(.95)}
+@media(prefers-reduced-motion:reduce){.toast{transition:opacity .2s}.toast.show{transform:none}}
 </style>
 </head>
 <body>
@@ -518,6 +547,7 @@ body.cartOpen .drawer{transform:none}
     <button class="drawer-close" id="drawerClose" aria-label="إغلاق">X</button>
   </div>
   <div class="drawer-list" id="drawerList"></div>
+  <div id="upsell" class="upsell" aria-label="أكمِل وجبتك"></div>
   <div class="drawer-foot">
     <div class="d-total"><span>المجموع</span><span class="num" id="drawerTotal">0 SR</span></div>
     <a class="d-send" id="sendOrder" href="#" rel="noopener">
@@ -851,6 +881,46 @@ if (!CSS.supports('animation-timeline: scroll()')) {
         setTimeout(function(){ drawerEl.classList.remove('opening'); }, 800);
       });
     }
+
+    /* ---- toast «أُضيف للسلة» + haptic ---- */
+    var CHECK='<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
+    var toastEl=null,toastT=null;
+    function toast(msg){
+      if(!toastEl){toastEl=document.createElement('div');toastEl.className='toast';toastEl.setAttribute('role','status');toastEl.setAttribute('aria-live','polite');document.body.appendChild(toastEl);}
+      toastEl.innerHTML=CHECK+'<span></span>';
+      toastEl.querySelector('span').textContent=msg;
+      toastEl.classList.remove('show');void toastEl.offsetWidth;toastEl.classList.add('show');
+      clearTimeout(toastT);toastT=setTimeout(function(){toastEl.classList.remove('show');},1700);
+    }
+    function drinkKeys(){var s={};document.querySelectorAll('#drinks .card[data-key]').forEach(function(c){s[c.getAttribute('data-key')]=1;});return s;}
+    function nameFrom(t){var c=t.closest('.card');if(c){var h=c.querySelector('h3');if(h)return h.textContent.trim();}var d=t.closest('.d-item');if(d){var b=d.querySelector('.d-info b');if(b)return b.textContent.trim();}var u=t.closest('.up-chip');if(u)return u.getAttribute('data-add')||'';return '';}
+    document.addEventListener('click',function(ev){
+      var t=ev.target.closest('[data-add],[data-plus]');if(!t)return;
+      var nm=nameFrom(t), drinks=drinkKeys();
+      var isDrink=nm && drinks[nm];
+      var hasDrink=!!document.querySelector('#drinks .card.inCart');
+      var msg=nm?('أُضيف «'+nm+'» ✓'):'أُضيف للسلة ✓';
+      if(!isDrink && !hasDrink) msg+=' · لا تنسَ مشروبك 🥤';
+      toast(msg);
+      if(navigator.vibrate){try{navigator.vibrate(14);}catch(e){}}
+    });
+
+    /* ---- upsell «أكمِل وجبتك» in the cart drawer ---- */
+    var POOL=['بيبسي','سفن أب','بطاطس البيريا المكسيكية','السلطة المكسيكية','بيبسي دايت'];
+    function inCartKey(k){return !!document.querySelector('.card.inCart[data-key="'+k+'"]');}
+    function priceOfKey(k){var e=document.querySelector('.card[data-key="'+k+'"] .price .num');return e?e.textContent.trim():'';}
+    function renderUpsell(){
+      var host=document.getElementById('upsell');if(!host)return;
+      var anyCart=!!document.querySelector('.card.inCart');
+      var sugg=POOL.filter(function(k){return !inCartKey(k) && priceOfKey(k);}).slice(0,3);
+      if(!anyCart || !sugg.length){host.innerHTML='';return;}
+      host.innerHTML='<div class="up-title">أكمِل وجبتك 🌶️</div><div class="up-row">'+
+        sugg.map(function(k){return '<button class="up-chip" data-add="'+k+'"><span>'+k+'</span><b>+'+priceOfKey(k)+'</b></button>';}).join('')+'</div>';
+    }
+    document.addEventListener('click',function(e){
+      if(e.target.closest('[data-add],[data-plus],[data-minus],#cartbtn,#clearCart')) setTimeout(renderUpsell,0);
+    });
+    renderUpsell();
   } catch(err){ /* additive layer only · swallow so the menu is never affected */ }
 })();
 </script>
